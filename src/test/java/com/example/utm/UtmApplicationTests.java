@@ -1,9 +1,11 @@
 package com.example.utm;
 
+import com.example.utm.service.MailService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -18,23 +20,20 @@ class UtmApplicationTests {
 	@Autowired
 	private MockMvc mockMvc;
 
+	// DİKKAT: Bu satır eklendi.
+	@MockBean
+	private MailService mailService;
+
 	@Test
 	void contextLoads() {
-		// Bu test, Spring Application Context'in başarıyla yüklenip yüklenmediğini kontrol eder.
-		// Eğer bir Bean oluşturulamıyorsa veya konfigürasyonda hata varsa bu test başarısız olur.
+		// Bu test artık, MailService'in sahte versiyonuyla birlikte
+		// Spring Context'in başarıyla yüklendiğini kontrol edecek.
 	}
 
 	@Test
 	void whenGetUstalar_thenStatus200() throws Exception {
-		// Halka açık olan "ustalar" endpoint'ine bir GET isteği yap
 		mockMvc.perform(get("/api/ustalar"))
-				// HTTP durum kodunun 200 (OK) olmasını bekle
 				.andExpect(status().isOk())
-				// Dönen içeriğin tipinin JSON olmasını bekle
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
 	}
-
-	// Gelecekte buraya yeni testler eklenebilir. Örneğin:
-	// - Geçersiz bir kullanıcı ile login olmayı deneyen bir test (401 Unauthorized beklenir).
-	// - Yetkisiz bir kullanıcının admin endpoint'ine erişmeye çalıştığı bir test (403 Forbidden beklenir).
 }

@@ -7,7 +7,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service; // <-- Bu importun olduğundan emin olun
+import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
@@ -15,15 +15,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-// DiKKAT: Bu @Service anotasyonunun burada olduğundan emin olun.
 @Service
 public class JwtService {
 
-  @Value("${jwt.secret-key}")
-  private String secretKey;
+  private final String secretKey;
+  private final long expirationTime;
 
-  @Value("${jwt.expiration-time-ms}")
-  private long expirationTime;
+  // Değerleri constructor üzerinden alıyoruz
+  public JwtService(@Value("${jwt.secret-key}") String secretKey,
+      @Value("${jwt.expiration-time-ms}") long expirationTime) {
+    this.secretKey = secretKey;
+    this.expirationTime = expirationTime;
+  }
 
   public String extractUsername(String token) {
     return extractClaim(token, Claims::getSubject);
@@ -56,8 +59,6 @@ public class JwtService {
   private boolean isTokenExpired(String token) {
     return extractExpiration(token).before(new Date());
   }
-
-
 
   private Date extractExpiration(String token) {
     return extractClaim(token, Claims::getExpiration);
