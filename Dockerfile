@@ -1,11 +1,10 @@
 # 1. Aşama: Uygulamayı Maven ile build etmek (inşa etmek)
-# Java 17 ve Maven'ın olduğu bir ortam kullanıyoruz
-FROM maven:3.8-openjdk-17 AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 
 # Kodumuzu kopyalamak için bir çalışma dizini oluşturuyoruz
 WORKDIR /app
 
-# Önce sadece pom.xml'i kopyalayıp bağımlılıkları indiriyoruz. Bu, her kod değişikliğinde kütüphanelerin tekrar indirilmesini engeller.
+# Önce sadece pom.xml'i kopyalayıp bağımlılıkları indiriyoruz
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
@@ -17,8 +16,7 @@ RUN mvn clean package -DskipTests
 
 
 # 2. Aşama: Sadece çalıştırılabilir uygulamayı içeren küçük imajı oluşturmak
-# Sadece Java'yı çalıştırabilen (JRE) küçük bir ortam kullanıyoruz
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre-jammy
 
 # Çalışma dizini oluşturuyoruz
 WORKDIR /app
