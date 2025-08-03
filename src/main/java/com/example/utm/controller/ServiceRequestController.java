@@ -1,5 +1,6 @@
 package com.example.utm.controller;
 
+import com.example.utm.dto.ServiceRequestDto;
 import com.example.utm.model.ServiceRequest;
 import com.example.utm.model.User;
 import com.example.utm.service.ServiceRequestService;
@@ -18,9 +19,7 @@ import java.util.List;
 public class ServiceRequestController {
 
   private final ServiceRequestService requestService;
-  private final UserService userService; // Kullanıcıyı bulmak için
-
-  // --- Kullanıcının Kendi Talep İşlemleri ---
+  private final UserService userService;
 
   @PostMapping("/me/requests")
   public ResponseEntity<ServiceRequest> createRequest(@RequestBody ServiceRequest request, Principal principal) {
@@ -30,18 +29,17 @@ public class ServiceRequestController {
   }
 
   @GetMapping("/me/requests")
-  public ResponseEntity<List<ServiceRequest>> getMyRequests(Principal principal) {
+  public ResponseEntity<List<ServiceRequestDto>> getMyRequests(Principal principal) {
     User currentUser = userService.findByUsername(principal.getName());
-    List<ServiceRequest> myRequests = requestService.findRequestsByUser(currentUser);
+    List<ServiceRequestDto> myRequests = requestService.findRequestsByUser(currentUser);
     return ResponseEntity.ok(myRequests);
   }
 
-  // --- Admin İşlemleri ---
-
-  @GetMapping("/admin/requests") // DOĞRU YERİ BURASI
+  @GetMapping("/admin/requests")
   @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<List<ServiceRequest>> getAllRequests() {
-    List<ServiceRequest> allRequests = requestService.findAllRequests();
+  public ResponseEntity<List<ServiceRequestDto>> getAllRequests() {
+    // Dönüş tipi List<ServiceRequestDto> olarak güncellendi.
+    List<ServiceRequestDto> allRequests = requestService.findAllRequests();
     return ResponseEntity.ok(allRequests);
   }
 }
