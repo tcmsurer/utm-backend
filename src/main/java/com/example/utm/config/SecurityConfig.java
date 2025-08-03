@@ -49,6 +49,7 @@ public class SecurityConfig {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(Arrays.asList(
         "http://localhost:3000",
+        "https://ustatedarikmerkezi.com",
         "https://utm-frontend.vercel.app" // vercel uygulama adresi
     ));
     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
