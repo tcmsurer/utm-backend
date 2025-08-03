@@ -1,11 +1,12 @@
 package com.example.utm.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference; // Import et
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import java.util.List;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,22 +21,18 @@ public class ServiceRequest {
   @Column(nullable = false)
   private String title;
 
-  @Lob // Uzun metinler için
+  @Lob
   private String description;
 
+  // DİKKAT: @JsonBackReference eklendi
   @ManyToOne(optional = false)
   @JoinColumn(name = "user_id", referencedColumnName = "id")
+  @JsonBackReference
   private User user;
 
-  @OneToMany(mappedBy = "serviceRequest", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  @JsonManagedReference // JSON'a çevrilirken sonsuz döngüyü önler
-  private List<Offer> offers;
-
   @Column(nullable = false)
-  private String category; // e.g., "Boyacı"
+  private String category;
 
-  // Bu bilgiler artık User objesinden de alınabilir ancak talep anındaki
-  // bilgiyi saklamak için burada tutmak da bir yöntemdir.
   private String email;
   private String phone;
   private String address;
@@ -49,4 +46,8 @@ public class ServiceRequest {
   @CreationTimestamp
   @Column(updatable = false)
   private LocalDateTime createdDate;
+
+  @OneToMany(mappedBy = "serviceRequest", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JsonManagedReference
+  private List<Offer> offers;
 }
