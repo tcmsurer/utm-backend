@@ -8,6 +8,7 @@ import com.example.utm.repository.ServiceRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // YENİ IMPORT
 
 import java.util.List;
 import java.util.UUID;
@@ -19,7 +20,7 @@ public class ServiceRequestService {
 
   private final ServiceRequestRepository requestRepository;
 
-  // YENİ EKLENEN METOD
+  @Transactional(readOnly = true) // YENİ EKLENDİ
   public List<ServiceRequestDto> findAllRequests() {
     List<ServiceRequest> requests = requestRepository.findAll();
     return requests.stream()
@@ -35,6 +36,7 @@ public class ServiceRequestService {
     return requestRepository.save(request);
   }
 
+  @Transactional(readOnly = true) // YENİ EKLENDİ
   public List<ServiceRequestDto> findRequestsByUser(User user) {
     List<ServiceRequest> requests = requestRepository.findByUser(user);
     return requests.stream()
@@ -43,7 +45,7 @@ public class ServiceRequestService {
   }
 
   private ServiceRequestDto convertToDto(ServiceRequest request) {
-    List<OfferDto> offerDtos = request.getOffers().stream()
+    List<OfferDto> offerDtos = request.getOffers() == null ? List.of() : request.getOffers().stream()
         .map(offer -> new OfferDto(
             offer.getId(),
             offer.getPrice(),
