@@ -1,9 +1,10 @@
 package com.example.utm.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference; // Import et
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,10 +13,12 @@ import java.util.UUID;
 
 @Data
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ServiceRequest {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @EqualsAndHashCode.Include
   private UUID id;
 
   @Column(nullable = false)
@@ -24,7 +27,6 @@ public class ServiceRequest {
   @Lob
   private String description;
 
-  // DİKKAT: @JsonBackReference eklendi
   @ManyToOne(optional = false)
   @JoinColumn(name = "user_id", referencedColumnName = "id")
   @JsonBackReference

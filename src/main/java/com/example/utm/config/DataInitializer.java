@@ -16,11 +16,11 @@ public class DataInitializer implements CommandLineRunner {
 
   @Override
   public void run(String... args) throws Exception {
-    // Eğer 'utm' adında bir admin yoksa, oluştur.
+    // eger 'utm' adinda bir admin yoksa, olustur.
     if (adminUserRepository.findByUsername("utm").isEmpty()) {
       AdminUser admin = new AdminUser();
       admin.setUsername("utm");
-      admin.setPassword(passwordEncoder.encode("1234")); // Şifre: 1234
+      admin.setPassword(passwordEncoder.encode("1234")); // sifre: 1234
       adminUserRepository.save(admin);
       System.out.println(">>> Default admin user 'utm' created.");
     }

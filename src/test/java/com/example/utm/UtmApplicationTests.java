@@ -20,14 +20,13 @@ class UtmApplicationTests {
 	@Autowired
 	private MockMvc mockMvc;
 
-	// DİKKAT: Bu satır eklendi.
 	@MockBean
 	private MailService mailService;
 
 	@Test
 	void contextLoads() {
-		// Bu test artık, MailService'in sahte versiyonuyla birlikte
-		// Spring Context'in başarıyla yüklendiğini kontrol edecek.
+		// bu test, mailservice'in sahte versiyonuyla birlikte
+		// spring context'in basariyla yuklendigini kontrol edecek.
 	}
 
 	@Test

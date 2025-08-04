@@ -16,7 +16,7 @@ public class OfferService {
 
   private final OfferRepository offerRepository;
   private final ServiceRequestRepository requestRepository;
-  private final MailService mailService;
+  private final MailService mailService; // e-posta servisini enjekte et
 
   public Offer createOfferForRequest(UUID requestId, Offer offer, AdminUser admin) {
     ServiceRequest request = requestRepository.findById(requestId)
@@ -27,30 +27,30 @@ public class OfferService {
 
     Offer savedOffer = offerRepository.save(offer);
 
-    // --- E-POSTA İÇERİĞİNİ GÜNCELLEME ---
+    // --- e-posta icerigini guncelleme ---
 
-    // 1. Soruları ve cevapları güzel bir metin formatına dönüştür
+    // 1. sorulari ve cevaplari guzel bir metin formatina donustur
     String detailsText = request.getDetails().entrySet().stream()
         .map(entry -> "- " + entry.getKey() + ": " + entry.getValue())
         .collect(Collectors.joining("\n"));
 
-    // 2. E-posta konusunu ve ana metnini oluştur
-    String subject = "Hizmet Talebiniz İçin Yeni Bir Teklif Aldınız!";
+    // 2. e-posta konusunu ve ana metnini olustur
+    String subject = "Hizmet Talebiniz Icin Yeni Bir Teklif Aldiniz!";
     String body = String.format(
-        "Merhaba,\n\n'%s' başlıklı talebiniz için yeni bir fiyat teklifi aldınız.\n\n" +
-            "--- Teklif Detayları ---\n" +
+        "Merhaba,\n\n'%s' baslikli talebiniz icin yeni bir fiyat teklifi aldiniz.\n\n" +
+            "--- Teklif Detaylari ---\n" +
             "Fiyat: %.2f ₺\n" +
-            "Ustanın Mesajı: %s\n\n" +
-            "--- Sizin Verdiğiniz Bilgiler ---\n" +
+            "Ustanin Mesaji: %s\n\n" +
+            "--- Sizin Verdiginiz Bilgiler ---\n" +
             "%s\n\n" +
-            "Talebinizi ve diğer teklifleri görüntülemek için sitemizi ziyaret edebilirsiniz.",
+            "Talebinizi ve diger teklifleri goruntulemek icin sitemizi ziyaret edebilirsiniz.",
         request.getTitle(),
         savedOffer.getPrice(),
         savedOffer.getDetails(),
-        detailsText // Oluşturduğumuz detay metnini buraya ekle
+        detailsText // olusturdugumuz detay metnini buraya ekle
     );
 
-    // 3. E-postayı gönder
+    // 3. e-postayi gonder
     mailService.sendOfferEmail(request, subject, body);
 
     return savedOffer;

@@ -1,18 +1,21 @@
 package com.example.utm.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference; // Import et
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
-import java.util.List; // Import et
+import lombok.EqualsAndHashCode;
+import java.util.List;
 import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "app_users")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @EqualsAndHashCode.Include
   private UUID id;
 
   @Column(unique = true, nullable = false)
