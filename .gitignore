@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Hassas veritabanı bilgilerini içeren profil dosyasını yoksay
+application-dev-pg.properties
