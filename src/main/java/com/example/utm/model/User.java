@@ -10,12 +10,12 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "app_users")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true) // Bu satır kritik
 public class User {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @EqualsAndHashCode.Include
+  @EqualsAndHashCode.Include // Bu satır kritik
   private UUID id;
 
   @Column(unique = true, nullable = false)
