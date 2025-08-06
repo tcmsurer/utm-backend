@@ -28,9 +28,9 @@ public class UserController {
 
   @PutMapping("/me")
   @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
-  public ResponseEntity<User> updateCurrentUserProfile(Principal principal, @RequestBody UserProfileDto profileDto) {
-    User updatedUser = userService.updateUserProfile(principal.getName(), profileDto);
-    return ResponseEntity.ok(updatedUser);
+  public ResponseEntity<UserProfileDto> updateCurrentUserProfile(Principal principal, @RequestBody UserProfileDto profileDto) {
+    UserProfileDto updatedProfile = userService.updateUserProfile(principal.getName(), profileDto);
+    return ResponseEntity.ok(updatedProfile);
   }
 
   @GetMapping("/admin/users")

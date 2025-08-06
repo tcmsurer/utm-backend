@@ -55,12 +55,19 @@ public class UserService {
   }
 
   @Transactional
-  public User updateUserProfile(String username, UserProfileDto profileDto) {
+  public UserProfileDto updateUserProfile(String username, UserProfileDto profileDto) {
     User userToUpdate = findByUsername(username);
+
     userToUpdate.setFullName(profileDto.fullName());
     userToUpdate.setPhone(profileDto.phone());
     userToUpdate.setAddress(profileDto.address());
 
-    return userRepository.save(userToUpdate);
+    User savedUser = userRepository.save(userToUpdate);
+
+    // Veritabanına kaydedilmiş son halini DTO'ya çevirip döndür
+    return new UserProfileDto(
+        savedUser.getId(), savedUser.getFullName(), savedUser.getUsername(),
+        savedUser.getEmail(), savedUser.getPhone(), savedUser.getAddress()
+    );
   }
 }
