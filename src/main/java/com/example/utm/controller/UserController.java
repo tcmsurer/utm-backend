@@ -35,7 +35,7 @@ public class UserController {
 
   @GetMapping("/admin/users")
   @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-  public ResponseEntity<Page<User>> getAllUsers(Pageable pageable) {
+  public ResponseEntity<Page<UserProfileDto>> getAllUsers(Pageable pageable) {
     return ResponseEntity.ok(userService.findAllUsers(pageable));
   }
 }

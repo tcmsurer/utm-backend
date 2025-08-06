@@ -22,8 +22,17 @@ public class UserService {
   private final AdminUserRepository adminUserRepository;
 
   @Transactional(readOnly = true)
-  public Page<User> findAllUsers(Pageable pageable) {
-    return userRepository.findAll(pageable);
+  public Page<UserProfileDto> findAllUsers(Pageable pageable) {
+    Page<User> usersPage = userRepository.findAll(pageable);
+    // Page<User> objesini Page<UserProfileDto> objesine çeviriyoruz
+    return usersPage.map(user -> new UserProfileDto(
+        user.getId(),
+        user.getFullName(),
+        user.getUsername(),
+        user.getEmail(),
+        user.getPhone(),
+        user.getAddress()
+    ));
   }
 
   public User findByUsername(String username) {
@@ -64,7 +73,6 @@ public class UserService {
 
     User savedUser = userRepository.save(userToUpdate);
 
-    // Veritabanına kaydedilmiş son halini DTO'ya çevirip döndür
     return new UserProfileDto(
         savedUser.getId(), savedUser.getFullName(), savedUser.getUsername(),
         savedUser.getEmail(), savedUser.getPhone(), savedUser.getAddress()
