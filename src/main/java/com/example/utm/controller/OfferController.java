@@ -1,5 +1,6 @@
 package com.example.utm.controller;
 
+import com.example.utm.dto.OfferDto; // Yeni import
 import com.example.utm.model.AdminUser;
 import com.example.utm.model.Offer;
 import com.example.utm.service.AdminUserService;
@@ -22,9 +23,10 @@ public class OfferController {
 
   @PostMapping
   @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-  public ResponseEntity<Offer> createOffer(@PathVariable UUID requestId, @RequestBody Offer offer, Principal principal) {
+  public ResponseEntity<OfferDto> createOffer(@PathVariable UUID requestId, @RequestBody Offer offer, Principal principal) {
     AdminUser admin = adminUserService.findByUsername(principal.getName());
-    Offer createdOffer = offerService.createOfferForRequest(requestId, offer, admin);
-    return ResponseEntity.ok(createdOffer);
+    // Artık OfferDto dönüyor
+    OfferDto createdOfferDto = offerService.createOfferForRequest(requestId, offer, admin);
+    return ResponseEntity.ok(createdOfferDto);
   }
 }

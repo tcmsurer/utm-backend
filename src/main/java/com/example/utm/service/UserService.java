@@ -24,7 +24,6 @@ public class UserService {
   @Transactional(readOnly = true)
   public Page<UserProfileDto> findAllUsers(Pageable pageable) {
     Page<User> usersPage = userRepository.findAll(pageable);
-    // Page<User> objesini Page<UserProfileDto> objesine çeviriyoruz
     return usersPage.map(user -> new UserProfileDto(
         user.getId(),
         user.getFullName(),
@@ -65,17 +64,26 @@ public class UserService {
 
   @Transactional
   public UserProfileDto updateUserProfile(String username, UserProfileDto profileDto) {
-    User userToUpdate = findByUsername(username);
+    Optional<User> userOptional = userRepository.findByUsername(username);
+    if (userOptional.isPresent()) {
+      User userToUpdate = userOptional.get();
+      userToUpdate.setFullName(profileDto.fullName());
+      userToUpdate.setPhone(profileDto.phone());
+      userToUpdate.setAddress(profileDto.address());
+      User savedUser = userRepository.save(userToUpdate);
+      return new UserProfileDto(savedUser.getId(), savedUser.getFullName(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getPhone(), savedUser.getAddress());
+    }
 
-    userToUpdate.setFullName(profileDto.fullName());
-    userToUpdate.setPhone(profileDto.phone());
-    userToUpdate.setAddress(profileDto.address());
+    Optional<AdminUser> adminOptional = adminUserRepository.findByUsername(username);
+    if (adminOptional.isPresent()) {
+      AdminUser adminToUpdate = adminOptional.get();
+      adminToUpdate.setFullName(profileDto.fullName());
+      adminToUpdate.setPhone(profileDto.phone());
+      adminToUpdate.setAddress(profileDto.address());
+      AdminUser savedAdmin = adminUserRepository.save(adminToUpdate);
+      return new UserProfileDto(savedAdmin.getId(), savedAdmin.getFullName(), savedAdmin.getUsername(), savedAdmin.getEmail(), savedAdmin.getPhone(), savedAdmin.getAddress());
+    }
 
-    User savedUser = userRepository.save(userToUpdate);
-
-    return new UserProfileDto(
-        savedUser.getId(), savedUser.getFullName(), savedUser.getUsername(),
-        savedUser.getEmail(), savedUser.getPhone(), savedUser.getAddress()
-    );
+    throw new UsernameNotFoundException("User not found with username: " + username);
   }
 }

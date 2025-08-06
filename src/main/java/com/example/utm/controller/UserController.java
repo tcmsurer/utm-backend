@@ -29,6 +29,7 @@ public class UserController {
   @PutMapping("/me")
   @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
   public ResponseEntity<UserProfileDto> updateCurrentUserProfile(Principal principal, @RequestBody UserProfileDto profileDto) {
+    // Artık UserProfileDto dönüyor
     UserProfileDto updatedProfile = userService.updateUserProfile(principal.getName(), profileDto);
     return ResponseEntity.ok(updatedProfile);
   }
