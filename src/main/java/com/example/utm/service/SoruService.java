@@ -4,6 +4,8 @@ import com.example.utm.model.Soru;
 import com.example.utm.repository.SoruRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.UUID;
@@ -11,13 +13,14 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class SoruService {
-
   private final SoruRepository soruRepository;
 
-  public List<Soru> getAllSorular() {
-    return soruRepository.findAll();
+  // Admin paneli için, sayfalı
+  public Page<Soru> getAllSorular(Pageable pageable) {
+    return soruRepository.findAll(pageable);
   }
 
+  // Halka açık, sayfasız
   public List<Soru> getSorularByUstaName(String ustaName) {
     return soruRepository.findByUsta_NameOrderByOrderAsc(ustaName);
   }

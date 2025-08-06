@@ -4,12 +4,13 @@ import com.example.utm.dto.UserProfileDto;
 import com.example.utm.model.User;
 import com.example.utm.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -18,26 +19,23 @@ public class UserController {
 
   private final UserService userService;
 
-  // --- Kullanıcının Kendi İşlemleri (Giriş Yapmış Olmalı) ---
-
   @GetMapping("/me")
-  public ResponseEntity<User> getCurrentUserProfile(Principal principal) {
-    // Principal.getName() bize JWT'den gelen kullanıcı adını (username) verir.
-    User user = userService.findByUsername(principal.getName());
-    return ResponseEntity.ok(user);
+  @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
+  public ResponseEntity<UserProfileDto> getCurrentUserProfile(Principal principal) {
+    UserProfileDto userProfile = userService.findProfileByUsername(principal.getName());
+    return ResponseEntity.ok(userProfile);
   }
 
   @PutMapping("/me")
+  @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
   public ResponseEntity<User> updateCurrentUserProfile(Principal principal, @RequestBody UserProfileDto profileDto) {
     User updatedUser = userService.updateUserProfile(principal.getName(), profileDto);
     return ResponseEntity.ok(updatedUser);
   }
 
-  // --- Admin İşlemleri ---
-
   @GetMapping("/admin/users")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<List<User>> getAllUsers() {
-    return ResponseEntity.ok(userService.findAllUsers());
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  public ResponseEntity<Page<User>> getAllUsers(Pageable pageable) {
+    return ResponseEntity.ok(userService.findAllUsers(pageable));
   }
 }

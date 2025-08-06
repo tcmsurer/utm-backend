@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity // @PreAuthorize anotasyonlarını etkinleştirir
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -32,15 +32,18 @@ public class SecurityConfig {
         .csrf(AbstractHttpConfigurer::disable)
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(auth -> auth
-            // DİKKAT: KURALLARI YENİDEN DÜZENLİYORUZ
-            .requestMatchers("/api/admin/**").hasRole("ADMIN")       // 1. Kural: /api/admin/** sadece ADMIN rolü olanlar
-            .requestMatchers("/api/me/**", "/taleplerim/**").authenticated() // 2. Kural: /api/me/** ve /taleplerim/** giriş yapmış herhangi bir kullanıcı
-            .anyRequest().permitAll()                               // 3. Kural: Bunların dışındaki TÜM istekler (ana sayfa, kayıt, usta listesi vb.) herkese açık
+            .requestMatchers(
+                "/api/auth/**",
+                "/swagger-ui/**",
+                "/v3/api-docs/**",
+                "/api/ustalar",
+                "/api/sorular/usta/**"
+            ).permitAll() // Herkese açık endpoint'ler
+            .anyRequest().authenticated() // Geriye kalan tüm istekler giriş yapmış olmayı gerektirir
         )
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authenticationProvider(authenticationProvider)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
     return http.build();
   }
 
@@ -48,10 +51,10 @@ public class SecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(Arrays.asList(
-        "http://localhost:3000",                // Geliştirme için
-        "https://utm-frontend.vercel.app",     // Vercel'in kendi adresi
-        "https://ustatedarikmerkezi.com",      // Sizin ana domain'iniz
-        "https://www.ustatedarikmerkezi.com"    // www'li versiyonu
+        "http://localhost:3000",
+        "https://utm-frontend.vercel.app",
+        "https://ustatedarikmerkezi.com",
+        "https://www.ustatedarikmerkezi.com"
     ));
     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));

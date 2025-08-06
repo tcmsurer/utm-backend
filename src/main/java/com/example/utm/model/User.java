@@ -10,13 +10,16 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "app_users")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true) // Bu satır kritik
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
-  @EqualsAndHashCode.Include // Bu satır kritik
+  @EqualsAndHashCode.Include
   private UUID id;
+
+  @Column(nullable = false)
+  private String fullName; // Ad Soyad alanı eklendi
 
   @Column(unique = true, nullable = false)
   private String username;

@@ -1,11 +1,13 @@
 package com.example.utm.service;
 
+import com.example.utm.dto.MailLogDto;
 import com.example.utm.model.MailLog;
 import com.example.utm.repository.MailLogRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +19,20 @@ public class MailLogService {
     mailLogRepository.save(mailLog);
   }
 
-  public List<MailLog> findAllLogs() {
-    return mailLogRepository.findAll();
+  @Transactional(readOnly = true)
+  public Page<MailLogDto> findAllLogs(Pageable pageable) {
+    Page<MailLog> logsPage = mailLogRepository.findAll(pageable);
+    return logsPage.map(this::convertToDto); // Page<Entity> -> Page<Dto>
+  }
+
+  // Entity'yi DTO'ya dönüştüren yardımcı metod
+  private MailLogDto convertToDto(MailLog log) {
+    return new MailLogDto(
+        log.getId(),
+        log.getServiceRequest() != null ? log.getServiceRequest().getTitle() : "N/A",
+        log.getEmail(),
+        log.getSubject(),
+        log.getSentDate()
+    );
   }
 }

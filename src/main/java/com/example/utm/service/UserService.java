@@ -1,49 +1,65 @@
 package com.example.utm.service;
 
-import com.example.utm.dto.UserProfileDto; // Yeni bir DTO (aşağıda örneği var)
+import com.example.utm.dto.UserProfileDto;
+import com.example.utm.model.AdminUser;
 import com.example.utm.model.User;
+import com.example.utm.repository.AdminUserRepository;
 import com.example.utm.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
   private final UserRepository userRepository;
+  private final AdminUserRepository adminUserRepository;
 
-  /**
-   * Admin tarafından tüm kullanıcıları listelemek için kullanılır.
-   * @return Tüm kullanıcıların listesi.
-   */
-  public List<User> findAllUsers() {
-    return userRepository.findAll();
+  @Transactional(readOnly = true)
+  public Page<User> findAllUsers(Pageable pageable) {
+    return userRepository.findAll(pageable);
   }
 
-  /**
-   * Kullanıcı adıyla tek bir kullanıcıyı bulur.
-   * @param username Aranacak kullanıcı adı.
-   * @return Bulunan kullanıcı.
-   */
   public User findByUsername(String username) {
     return userRepository.findByUsername(username)
         .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
   }
 
-  /**
-   * Bir kullanıcının profil bilgilerini güncellemek için kullanılır.
-   * @param username Güncellenecek kullanıcının adı.
-   * @param profileDto Yeni profil bilgileri.
-   * @return Güncellenmiş kullanıcı.
-   */
+  @Transactional(readOnly = true)
+  public UserProfileDto findProfileByUsername(String username) {
+    Optional<User> userOptional = userRepository.findByUsername(username);
+    if (userOptional.isPresent()) {
+      User user = userOptional.get();
+      return new UserProfileDto(
+          user.getId(), user.getFullName(), user.getUsername(),
+          user.getEmail(), user.getPhone(), user.getAddress()
+      );
+    }
+
+    Optional<AdminUser> adminOptional = adminUserRepository.findByUsername(username);
+    if (adminOptional.isPresent()) {
+      AdminUser admin = adminOptional.get();
+      return new UserProfileDto(
+          admin.getId(), admin.getFullName(), admin.getUsername(),
+          admin.getEmail(), admin.getPhone(), admin.getAddress()
+      );
+    }
+
+    throw new UsernameNotFoundException("User not found with username: " + username);
+  }
+
+  @Transactional
   public User updateUserProfile(String username, UserProfileDto profileDto) {
     User userToUpdate = findByUsername(username);
+    userToUpdate.setFullName(profileDto.fullName());
     userToUpdate.setPhone(profileDto.phone());
     userToUpdate.setAddress(profileDto.address());
-    // Email gibi diğer alanlar da güncellenebilir.
 
     return userRepository.save(userToUpdate);
   }

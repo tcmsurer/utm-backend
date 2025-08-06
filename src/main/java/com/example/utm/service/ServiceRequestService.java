@@ -2,13 +2,17 @@ package com.example.utm.service;
 
 import com.example.utm.dto.OfferDto;
 import com.example.utm.dto.ServiceRequestDto;
+import com.example.utm.dto.UserContactDto;
+import com.example.utm.model.RequestStatus;
 import com.example.utm.model.ServiceRequest;
 import com.example.utm.model.User;
 import com.example.utm.repository.ServiceRequestRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // YENİ IMPORT
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,12 +24,10 @@ public class ServiceRequestService {
 
   private final ServiceRequestRepository requestRepository;
 
-  @Transactional(readOnly = true) // YENİ EKLENDİ
-  public List<ServiceRequestDto> findAllRequests() {
-    List<ServiceRequest> requests = requestRepository.findAll();
-    return requests.stream()
-        .map(this::convertToDto)
-        .collect(Collectors.toList());
+  @Transactional(readOnly = true)
+  public Page<ServiceRequestDto> findAllRequests(Pageable pageable) {
+    Page<ServiceRequest> requestsPage = requestRepository.findAllByOrderByCreatedDateDesc(pageable);
+    return requestsPage.map(this::convertToDto);
   }
 
   public ServiceRequest createRequestForUser(ServiceRequest request, User user) {
@@ -33,15 +35,32 @@ public class ServiceRequestService {
     request.setEmail(user.getEmail());
     request.setPhone(user.getPhone());
     request.setAddress(user.getAddress());
+    request.setStatus(RequestStatus.OPEN); // Yeni talepler her zaman AÇIK başlar
     return requestRepository.save(request);
   }
 
-  @Transactional(readOnly = true) // YENİ EKLENDİ
+  @Transactional(readOnly = true)
   public List<ServiceRequestDto> findRequestsByUser(User user) {
     List<ServiceRequest> requests = requestRepository.findByUser(user);
     return requests.stream()
         .map(this::convertToDto)
         .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public ServiceRequest closeRequestByUser(UUID requestId) {
+    ServiceRequest request = requestRepository.findById(requestId)
+        .orElseThrow(() -> new RuntimeException("Request not found"));
+    request.setStatus(RequestStatus.CLOSED_BY_USER);
+    return requestRepository.save(request);
+  }
+
+  @Transactional
+  public ServiceRequest closeRequestByAdmin(UUID requestId) {
+    ServiceRequest request = requestRepository.findById(requestId)
+        .orElseThrow(() -> new RuntimeException("Request not found"));
+    request.setStatus(RequestStatus.CLOSED_BY_ADMIN);
+    return requestRepository.save(request);
   }
 
   private ServiceRequestDto convertToDto(ServiceRequest request) {
@@ -54,14 +73,23 @@ public class ServiceRequestService {
         ))
         .collect(Collectors.toList());
 
+    User userEntity = request.getUser();
+    UserContactDto userContactDto = new UserContactDto(
+        userEntity.getFullName(),
+        userEntity.getEmail(),
+        userEntity.getPhone(),
+        userEntity.getUsername()
+    );
+
     return new ServiceRequestDto(
         request.getId(),
         request.getTitle(),
         request.getCategory(),
-        request.getUser().getUsername(),
+        userContactDto,
         request.getDetails(),
         request.getCreatedDate(),
-        offerDtos
+        offerDtos,
+        request.getStatus()
     );
   }
 

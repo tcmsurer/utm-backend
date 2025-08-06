@@ -1,4 +1,12 @@
 package com.example.utm.dto;
 
-public record UserProfileDto(String phone, String address) {
-}
+import java.util.UUID;
+
+public record UserProfileDto(
+    UUID id,
+    String fullName,
+    String username,
+    String email,
+    String phone,
+    String address
+) {}

@@ -18,10 +18,10 @@ import java.util.UUID;
 public class OfferController {
 
   private final OfferService offerService;
-  private final AdminUserService adminUserService; // Admini bulmak için
+  private final AdminUserService adminUserService;
 
   @PostMapping
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
   public ResponseEntity<Offer> createOffer(@PathVariable UUID requestId, @RequestBody Offer offer, Principal principal) {
     AdminUser admin = adminUserService.findByUsername(principal.getName());
     Offer createdOffer = offerService.createOfferForRequest(requestId, offer, admin);

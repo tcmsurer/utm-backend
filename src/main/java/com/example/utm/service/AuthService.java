@@ -21,10 +21,11 @@ public class AuthService {
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
-  private final UserDetailsService userDetailsService; // YENİ EKLENDİ
+  private final UserDetailsService userDetailsService;
 
   public AuthResponse register(RegisterRequest request) {
     var user = new User();
+    user.setFullName(request.fullName()); // Gelen Ad Soyad bilgisi set ediliyor
     user.setUsername(request.username());
     user.setEmail(request.email());
     user.setPhone(request.phone());
@@ -40,7 +41,6 @@ public class AuthService {
   }
 
   public AuthResponse login(AuthRequest request) {
-    // 1. Adım: Kimlik doğrulama (Bu kısım hem admin hem normal kullanıcı için çalışır)
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(
             request.username(),
@@ -48,9 +48,6 @@ public class AuthService {
         )
     );
 
-    // 2. Adım: Token üretme (DÜZELTİLMİŞ KISIM)
-    // Kullanıcıyı bulmak için artık sadece UserRepository'ye değil,
-    // hem admin hem de normal kullanıcıyı arayan UserDetailsService'e soruyoruz.
     final UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
 
     final String jwtToken = jwtService.generateToken(userDetails);

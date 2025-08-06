@@ -8,20 +8,21 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import com.example.utm.dto.MailLogDto;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin") // Bu controller'daki tüm endpoint'ler /api/admin ile başlar
+@RequestMapping("/api/admin")
 @RequiredArgsConstructor
 public class AdminController {
-
   private final MailLogService mailLogService;
-  // Gelecekte buraya başka admin servisleri de eklenebilir (örn: DashboardService)
 
   @GetMapping("/maillogs")
-  @PreAuthorize("hasRole('ADMIN')")
-  public ResponseEntity<List<MailLog>> getAllMailLogs() {
-    return ResponseEntity.ok(mailLogService.findAllLogs());
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  public ResponseEntity<Page<MailLogDto>> getAllMailLogs(Pageable pageable) {
+    return ResponseEntity.ok(mailLogService.findAllLogs(pageable));
   }
 }

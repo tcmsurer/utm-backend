@@ -32,21 +32,17 @@ public class ApplicationConfig {
         return new org.springframework.security.core.userdetails.User(
             user.get().getUsername(),
             user.get().getPassword(),
-            // DİKKAT: Normal kullanıcıya "USER" rolü veriliyor.
             Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
         );
       }
-
       var adminUser = adminUserRepository.findByUsername(username);
       if (adminUser.isPresent()) {
         return new org.springframework.security.core.userdetails.User(
             adminUser.get().getUsername(),
             adminUser.get().getPassword(),
-            // DİKKAT: Admin kullanıcısına "ADMIN" rolü veriliyor.
             Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))
         );
       }
-
       throw new UsernameNotFoundException("User not found with username: " + username);
     };
   }

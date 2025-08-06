@@ -1,4 +1,11 @@
 package com.example.utm.dto;
 
-public record RegisterRequest(String username, String password, String email, String phone, String address) {
-}
+// "fullName" alanı eklendi
+public record RegisterRequest(
+    String fullName,
+    String username,
+    String password,
+    String email,
+    String phone,
+    String address
+) {}

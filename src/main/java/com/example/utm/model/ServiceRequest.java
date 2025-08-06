@@ -52,4 +52,8 @@ public class ServiceRequest {
   @OneToMany(mappedBy = "serviceRequest", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JsonManagedReference
   private List<Offer> offers;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private RequestStatus status = RequestStatus.OPEN;
 }
