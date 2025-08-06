@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ public class User {
   private UUID id;
 
   @Column(nullable = false)
-  private String fullName; // Ad Soyad alanı eklendi
+  private String fullName;
 
   @Column(unique = true, nullable = false)
   private String username;
@@ -34,7 +35,14 @@ public class User {
 
   private String address;
 
+  // Sifre sifirlama icin yeni alanlar
+  private String passwordResetToken;
+  private LocalDateTime passwordResetTokenExpiry;
+
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @JsonManagedReference
   private List<ServiceRequest> serviceRequests;
+
+  public String getUsername() { return this.username; }
+  public String getPassword() { return this.password; }
 }

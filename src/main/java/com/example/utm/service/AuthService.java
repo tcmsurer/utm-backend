@@ -12,6 +12,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,7 @@ public class AuthService {
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
   private final UserDetailsService userDetailsService;
+  private final MailService mailService;
 
   public AuthResponse register(RegisterRequest request) {
     var user = new User();
@@ -52,5 +57,33 @@ public class AuthService {
 
     final String jwtToken = jwtService.generateToken(userDetails);
     return new AuthResponse(jwtToken);
+  }
+
+  @Transactional
+  public void initiatePasswordReset(String email) {
+    User user = userRepository.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("Bu e-posta adresi ile kayitli kullanici bulunamadi."));
+
+    String token = UUID.randomUUID().toString();
+    user.setPasswordResetToken(token);
+    user.setPasswordResetTokenExpiry(LocalDateTime.now().plusHours(1)); // Token 1 saat geçerli
+    userRepository.save(user);
+
+    mailService.sendPasswordResetEmail(user.getEmail(), token);
+  }
+
+  @Transactional
+  public void resetPassword(String token, String newPassword) {
+    User user = userRepository.findByPasswordResetToken(token)
+        .orElseThrow(() -> new RuntimeException("Gecersiz veya suresi dolmus sifre sifirlama linki."));
+
+    if (user.getPasswordResetTokenExpiry().isBefore(LocalDateTime.now())) {
+      throw new RuntimeException("Sifre sifirlama linkinin suresi dolmus.");
+    }
+
+    user.setPassword(passwordEncoder.encode(newPassword));
+    user.setPasswordResetToken(null);
+    user.setPasswordResetTokenExpiry(null);
+    userRepository.save(user);
   }
 }

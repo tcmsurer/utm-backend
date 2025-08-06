@@ -25,8 +25,6 @@ class UtmApplicationTests {
 
 	@Test
 	void contextLoads() {
-		// bu test, mailservice'in sahte versiyonuyla birlikte
-		// spring context'in basariyla yuklendigini kontrol edecek.
 	}
 
 	@Test

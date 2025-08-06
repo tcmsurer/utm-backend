@@ -1,5 +1,6 @@
 package com.example.utm.controller;
 
+import com.example.utm.dto.ChangePasswordRequest;
 import com.example.utm.dto.UserProfileDto;
 import com.example.utm.model.User;
 import com.example.utm.service.UserService;
@@ -29,9 +30,19 @@ public class UserController {
   @PutMapping("/me")
   @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
   public ResponseEntity<UserProfileDto> updateCurrentUserProfile(Principal principal, @RequestBody UserProfileDto profileDto) {
-    // Artık UserProfileDto dönüyor
     UserProfileDto updatedProfile = userService.updateUserProfile(principal.getName(), profileDto);
     return ResponseEntity.ok(updatedProfile);
+  }
+
+  @PutMapping("/me/change-password")
+  @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
+  public ResponseEntity<String> changePassword(Principal principal, @RequestBody ChangePasswordRequest request) {
+    try {
+      userService.changePassword(principal.getName(), request);
+      return ResponseEntity.ok("Şifre başarıyla güncellendi.");
+    } catch (IllegalStateException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
   }
 
   @GetMapping("/admin/users")

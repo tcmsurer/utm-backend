@@ -1,5 +1,6 @@
 package com.example.utm.service;
 
+import com.example.utm.dto.ChangePasswordRequest;
 import com.example.utm.dto.UserProfileDto;
 import com.example.utm.model.AdminUser;
 import com.example.utm.model.User;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,17 +22,14 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final AdminUserRepository adminUserRepository;
+  private final PasswordEncoder passwordEncoder;
 
   @Transactional(readOnly = true)
   public Page<UserProfileDto> findAllUsers(Pageable pageable) {
     Page<User> usersPage = userRepository.findAll(pageable);
     return usersPage.map(user -> new UserProfileDto(
-        user.getId(),
-        user.getFullName(),
-        user.getUsername(),
-        user.getEmail(),
-        user.getPhone(),
-        user.getAddress()
+        user.getId(), user.getFullName(), user.getUsername(),
+        user.getEmail(), user.getPhone(), user.getAddress()
     ));
   }
 
@@ -84,6 +83,36 @@ public class UserService {
       return new UserProfileDto(savedAdmin.getId(), savedAdmin.getFullName(), savedAdmin.getUsername(), savedAdmin.getEmail(), savedAdmin.getPhone(), savedAdmin.getAddress());
     }
 
+    throw new UsernameNotFoundException("User not found with username: " + username);
+  }
+
+  @Transactional
+  public void changePassword(String username, ChangePasswordRequest request) {
+    // Önce normal kullanıcı tablosunda ara
+    Optional<User> userOptional = userRepository.findByUsername(username);
+    if (userOptional.isPresent()) {
+      User user = userOptional.get();
+      if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
+        throw new IllegalStateException("Mevcut şifre yanlış.");
+      }
+      user.setPassword(passwordEncoder.encode(request.newPassword()));
+      userRepository.save(user);
+      return; // İşlem bitti, çık
+    }
+
+    // Eğer normal kullanıcı değilse, admin tablosunda ara
+    Optional<AdminUser> adminOptional = adminUserRepository.findByUsername(username);
+    if (adminOptional.isPresent()) {
+      AdminUser admin = adminOptional.get();
+      if (!passwordEncoder.matches(request.oldPassword(), admin.getPassword())) {
+        throw new IllegalStateException("Mevcut şifre yanlış.");
+      }
+      admin.setPassword(passwordEncoder.encode(request.newPassword()));
+      adminUserRepository.save(admin);
+      return; // İşlem bitti, çık
+    }
+
+    // Hiçbir yerde bulunamazsa
     throw new UsernameNotFoundException("User not found with username: " + username);
   }
 }
