@@ -24,8 +24,7 @@ public class Reply {
   @JsonBackReference
   private ServiceRequest serviceRequest;
 
-  // Kodun her zaman "author" sütununu kullanmasını garanti altına alıyoruz.
-  @Column(name = "author", nullable = false)
+  @Column(nullable = false)
   private String senderUsername;
 
   @Lob
