@@ -24,7 +24,7 @@ public class Reply {
   @JsonBackReference
   private ServiceRequest serviceRequest;
 
-  // DİKKAT: @Column anotasyonu ile veritabanındaki doğru kolon adını belirtiyoruz.
+  // Kodun her zaman "author" sütununu kullanmasını garanti altına alıyoruz.
   @Column(name = "author", nullable = false)
   private String senderUsername;
 
