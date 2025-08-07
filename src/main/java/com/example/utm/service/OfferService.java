@@ -31,8 +31,6 @@ public class OfferService {
 
     Offer savedOffer = offerRepository.save(offer);
 
-    // --- YENİ HTML E-POSTA ŞABLONU ---
-
     String subject = "Hizmet Talebiniz İçin Yeni Bir Teklif Aldınız!";
     String userFullName = request.getUser().getFullName();
     String requestTitle = request.getTitle();
@@ -67,7 +65,22 @@ public class OfferService {
 
     mailService.sendOfferEmail(request, subject, bodyHtml);
 
-    // Entity yerine DTO döndür
+    return new OfferDto(
+        savedOffer.getId(),
+        savedOffer.getPrice(),
+        savedOffer.getDetails(),
+        savedOffer.getCreatedDate()
+    );
+  }
+
+  @Transactional
+  public OfferDto updateOfferPrice(UUID offerId, double newPrice) {
+    Offer offerToUpdate = offerRepository.findById(offerId)
+        .orElseThrow(() -> new RuntimeException("Offer not found with id: " + offerId));
+
+    offerToUpdate.setPrice(newPrice);
+    Offer savedOffer = offerRepository.save(offerToUpdate);
+
     return new OfferDto(
         savedOffer.getId(),
         savedOffer.getPrice(),

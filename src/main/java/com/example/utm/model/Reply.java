@@ -1,7 +1,9 @@
 package com.example.utm.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
@@ -9,25 +11,29 @@ import java.util.UUID;
 
 @Data
 @Entity
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Reply {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
+  @EqualsAndHashCode.Include
   private UUID id;
 
   @ManyToOne(optional = false)
   @JoinColumn(name = "request_id")
+  @JsonBackReference
   private ServiceRequest serviceRequest;
 
-  // EKSİK OLAN VE HATAYI ÇÖZECEK ALAN:
+  // DİKKAT: @Column(name="author") anotasyonunu kaldırdık.
+  // Hibernate artık bu alan için 'sender_username' adında bir sütun oluşturacak.
   @Column(nullable = false)
-  private String author; // Cevabı yazan kişinin kullanıcı adı (örn: "user1", "admin_utm")
+  private String senderUsername;
 
   @Lob
   @Column(nullable = false)
   private String text;
 
   @CreationTimestamp
-  @Column(updatable = false)
+  @Column(updatable = false, name = "reply_date")
   private LocalDateTime date;
 }
