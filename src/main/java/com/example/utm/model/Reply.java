@@ -24,9 +24,8 @@ public class Reply {
   @JsonBackReference
   private ServiceRequest serviceRequest;
 
-  // DİKKAT: @Column(name="author") anotasyonunu kaldırdık.
-  // Hibernate artık bu alan için 'sender_username' adında bir sütun oluşturacak.
-  @Column(nullable = false)
+  // DİKKAT: @Column anotasyonu ile veritabanındaki doğru kolon adını belirtiyoruz.
+  @Column(name = "author", nullable = false)
   private String senderUsername;
 
   @Lob
