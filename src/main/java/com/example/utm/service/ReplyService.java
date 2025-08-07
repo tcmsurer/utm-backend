@@ -19,14 +19,16 @@ public class ReplyService {
   private final ServiceRequestRepository requestRepository;
 
   @Transactional
-  public Reply createReplyForRequest(UUID requestId, Reply reply, String authorUsername) {
+  public Reply createReplyForRequest(UUID requestId, String text, String authorUsername) {
     ServiceRequest request = requestRepository.findById(requestId)
         .orElseThrow(() -> new RuntimeException("Request not found with id: " + requestId));
 
-    reply.setServiceRequest(request);
-    reply.setSenderUsername(authorUsername); // BU SATIR HATAYI ÇÖZER
+    Reply newReply = new Reply();
+    newReply.setServiceRequest(request);
+    newReply.setSenderUsername(authorUsername);
+    newReply.setText(text);
 
-    return replyRepository.save(reply);
+    return replyRepository.save(newReply);
   }
 
   @Transactional(readOnly = true)

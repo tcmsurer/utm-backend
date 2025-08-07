@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -24,16 +25,18 @@ public class ReplyController {
 
   @PostMapping("/me/requests/{requestId}/replies")
   @PreAuthorize("hasAuthority('ROLE_USER')")
-  public ResponseEntity<Reply> addUserReply(@PathVariable UUID requestId, @RequestBody Reply reply, Principal principal) {
+  public ResponseEntity<Reply> addUserReply(@PathVariable UUID requestId, @RequestBody Map<String, String> payload, Principal principal) {
     requestService.verifyRequestOwner(requestId, principal.getName());
-    Reply createdReply = replyService.createReplyForRequest(requestId, reply, principal.getName());
+    String text = payload.get("text");
+    Reply createdReply = replyService.createReplyForRequest(requestId, text, principal.getName());
     return ResponseEntity.ok(createdReply);
   }
 
   @PostMapping("/admin/requests/{requestId}/replies")
   @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-  public ResponseEntity<Reply> addAdminReply(@PathVariable UUID requestId, @RequestBody Reply reply, Principal principal) {
-    Reply createdReply = replyService.createReplyForRequest(requestId, reply, principal.getName());
+  public ResponseEntity<Reply> addAdminReply(@PathVariable UUID requestId, @RequestBody Map<String, String> payload, Principal principal) {
+    String text = payload.get("text");
+    Reply createdReply = replyService.createReplyForRequest(requestId, text, principal.getName());
     return ResponseEntity.ok(createdReply);
   }
 
