@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -24,7 +23,7 @@ public class Reply {
   @JsonBackReference
   private ServiceRequest serviceRequest;
 
-  @Column(nullable = false)
+  @Column(name = "author", nullable = false)
   private String senderUsername;
 
   @Lob
