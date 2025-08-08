@@ -99,7 +99,6 @@ public class AuthService {
         .orElseThrow(() -> new RuntimeException("Gecersiz veya suresi dolmus dogrulama linki."));
 
     if (user.getEmailVerificationTokenExpiry().isBefore(LocalDateTime.now())) {
-      // Token'ı yine de temizleyelim ki tekrar kullanılamasın
       user.setEmailVerificationToken(null);
       user.setEmailVerificationTokenExpiry(null);
       userRepository.save(user);

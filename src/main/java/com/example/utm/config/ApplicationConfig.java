@@ -26,8 +26,10 @@ public class ApplicationConfig {
 
   @Bean
   public UserDetailsService userDetailsService() {
-    return username -> {
-      var user = userRepository.findByUsername(username);
+    return identifier -> {
+      // Once normal kullanici tablosunda ara (hem username hem email)
+      var user = userRepository.findByUsername(identifier)
+          .or(() -> userRepository.findByEmail(identifier));
       if (user.isPresent()) {
         return new org.springframework.security.core.userdetails.User(
             user.get().getUsername(),
@@ -35,7 +37,10 @@ public class ApplicationConfig {
             Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
         );
       }
-      var adminUser = adminUserRepository.findByUsername(username);
+
+      // Sonra admin tablosunda ara (hem username hem email)
+      var adminUser = adminUserRepository.findByUsername(identifier)
+          .or(() -> adminUserRepository.findByEmail(identifier));
       if (adminUser.isPresent()) {
         return new org.springframework.security.core.userdetails.User(
             adminUser.get().getUsername(),
@@ -43,7 +48,7 @@ public class ApplicationConfig {
             Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))
         );
       }
-      throw new UsernameNotFoundException("User not found with username: " + username);
+      throw new UsernameNotFoundException("User not found with identifier: " + identifier);
     };
   }
 
