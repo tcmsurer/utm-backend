@@ -1,6 +1,6 @@
 #FileLock
-#Fri Aug 08 15:44:17 TRT 2025
-server=192.168.1.4\:63023
+#Fri Aug 08 16:44:39 TRT 2025
+server=192.168.1.4\:55088
 hostName=TC16753562.turkcell.entp.tgc
 method=file
-id=19889b5e175b78a91d2b18b547ea72aafe838b0f8f8
+id=19889ed2de401d6b1755bf68c3d161581f81d268702

@@ -29,7 +29,8 @@ public class UserService {
     Page<User> usersPage = userRepository.findAll(pageable);
     return usersPage.map(user -> new UserProfileDto(
         user.getId(), user.getFullName(), user.getUsername(),
-        user.getEmail(), user.getPhone(), user.getAddress()
+        user.getEmail(), user.getPhone(), user.getAddress(),
+        user.isEmailVerified()
     ));
   }
 
@@ -45,7 +46,8 @@ public class UserService {
       User user = userOptional.get();
       return new UserProfileDto(
           user.getId(), user.getFullName(), user.getUsername(),
-          user.getEmail(), user.getPhone(), user.getAddress()
+          user.getEmail(), user.getPhone(), user.getAddress(),
+          user.isEmailVerified()
       );
     }
 
@@ -54,7 +56,8 @@ public class UserService {
       AdminUser admin = adminOptional.get();
       return new UserProfileDto(
           admin.getId(), admin.getFullName(), admin.getUsername(),
-          admin.getEmail(), admin.getPhone(), admin.getAddress()
+          admin.getEmail(), admin.getPhone(), admin.getAddress(),
+          true // Admin kullanıcıları her zaman doğrulanmış kabul edelim
       );
     }
 
@@ -70,7 +73,7 @@ public class UserService {
       userToUpdate.setPhone(profileDto.phone());
       userToUpdate.setAddress(profileDto.address());
       User savedUser = userRepository.save(userToUpdate);
-      return new UserProfileDto(savedUser.getId(), savedUser.getFullName(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getPhone(), savedUser.getAddress());
+      return new UserProfileDto(savedUser.getId(), savedUser.getFullName(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getPhone(), savedUser.getAddress(), savedUser.isEmailVerified());
     }
 
     Optional<AdminUser> adminOptional = adminUserRepository.findByUsername(username);
@@ -80,7 +83,7 @@ public class UserService {
       adminToUpdate.setPhone(profileDto.phone());
       adminToUpdate.setAddress(profileDto.address());
       AdminUser savedAdmin = adminUserRepository.save(adminToUpdate);
-      return new UserProfileDto(savedAdmin.getId(), savedAdmin.getFullName(), savedAdmin.getUsername(), savedAdmin.getEmail(), savedAdmin.getPhone(), savedAdmin.getAddress());
+      return new UserProfileDto(savedAdmin.getId(), savedAdmin.getFullName(), savedAdmin.getUsername(), savedAdmin.getEmail(), savedAdmin.getPhone(), savedAdmin.getAddress(),  true); // Admin kullanıcıları her zaman doğrulanmış kabul edelim
     }
 
     throw new UsernameNotFoundException("User not found with username: " + username);

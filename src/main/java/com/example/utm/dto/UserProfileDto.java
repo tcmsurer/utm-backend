@@ -8,5 +8,6 @@ public record UserProfileDto(
     String username,
     String email,
     String phone,
-    String address
+    String address,
+    boolean emailVerified // YENİ ALAN EKLENDİ
 ) {}
