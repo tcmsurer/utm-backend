@@ -35,11 +35,13 @@ public class User {
 
   private String address;
 
-  private boolean emailVerified = false;
+  // DİKKAT: @Column anotasyonu güncellendi
+  @Column(nullable = false, columnDefinition = "boolean default false")
+  private boolean emailVerified;
+
   private String emailVerificationToken;
   private LocalDateTime emailVerificationTokenExpiry;
 
-  // ŞİFRE SIFIRLAMA İÇİN YENİ ALANLAR
   private String passwordResetToken;
   private LocalDateTime passwordResetTokenExpiry;
 
