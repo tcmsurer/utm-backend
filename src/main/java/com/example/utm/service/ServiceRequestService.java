@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,12 +31,21 @@ public class ServiceRequestService {
     return requestsPage.map(this::convertToDto);
   }
 
+  @Transactional
   public ServiceRequest createRequestForUser(ServiceRequest request, User user) {
+
+    if (!user.isEmailVerified()) {
+      throw new IllegalStateException("Talep oluşturmak için e-posta adresinizi doğrulamanız gerekmektedir.");
+    }
     request.setUser(user);
     request.setEmail(user.getEmail());
     request.setPhone(user.getPhone());
-    request.setAddress(user.getAddress());
-    request.setStatus(RequestStatus.OPEN); // Yeni talepler her zaman AÇIK başlar
+
+    if (!StringUtils.hasText(request.getAddress())) {
+      request.setAddress(user.getAddress());
+    }
+
+    request.setStatus(RequestStatus.OPEN);
     return requestRepository.save(request);
   }
 
@@ -87,6 +97,7 @@ public class ServiceRequestService {
         request.getCategory(),
         userContactDto,
         request.getDetails(),
+        request.getAddress(), // YENİ EKLENDİ
         request.getCreatedDate(),
         offerDtos,
         request.getStatus()

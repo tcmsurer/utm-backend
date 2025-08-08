@@ -12,6 +12,7 @@ public record ServiceRequestDto(
     String category,
     UserContactDto user,
     Map<String, String> details,
+    String address, // YENİ EKLENDİ
     LocalDateTime createdDate,
     List<OfferDto> offers,
     RequestStatus status

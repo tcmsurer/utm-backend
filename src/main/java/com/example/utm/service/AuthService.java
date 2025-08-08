@@ -28,19 +28,26 @@ public class AuthService {
   private final UserDetailsService userDetailsService;
   private final MailService mailService;
 
+  @Transactional
   public AuthResponse register(RegisterRequest request) {
     var user = new User();
-    user.setFullName(request.fullName()); // Gelen Ad Soyad bilgisi set ediliyor
+    user.setFullName(request.fullName());
     user.setUsername(request.username());
     user.setEmail(request.email());
     user.setPhone(request.phone());
     user.setAddress(request.address());
     user.setPassword(passwordEncoder.encode(request.password()));
 
+    String token = UUID.randomUUID().toString();
+    user.setEmailVerificationToken(token);
+    user.setEmailVerificationTokenExpiry(LocalDateTime.now().plusDays(1));
+    user.setEmailVerified(false);
+
     userRepository.save(user);
 
-    var userDetails = userDetailsService.loadUserByUsername(request.username());
+    mailService.sendVerificationEmail(user.getEmail(), token);
 
+    var userDetails = userDetailsService.loadUserByUsername(request.username());
     var jwtToken = jwtService.generateToken(userDetails);
     return new AuthResponse(jwtToken);
   }
@@ -54,7 +61,6 @@ public class AuthService {
     );
 
     final UserDetails userDetails = userDetailsService.loadUserByUsername(request.username());
-
     final String jwtToken = jwtService.generateToken(userDetails);
     return new AuthResponse(jwtToken);
   }
@@ -66,7 +72,7 @@ public class AuthService {
 
     String token = UUID.randomUUID().toString();
     user.setPasswordResetToken(token);
-    user.setPasswordResetTokenExpiry(LocalDateTime.now().plusHours(1)); // Token 1 saat geçerli
+    user.setPasswordResetTokenExpiry(LocalDateTime.now().plusHours(1));
     userRepository.save(user);
 
     mailService.sendPasswordResetEmail(user.getEmail(), token);
@@ -85,5 +91,41 @@ public class AuthService {
     user.setPasswordResetToken(null);
     user.setPasswordResetTokenExpiry(null);
     userRepository.save(user);
+  }
+
+  @Transactional
+  public void verifyEmail(String token) {
+    User user = userRepository.findByEmailVerificationToken(token)
+        .orElseThrow(() -> new RuntimeException("Gecersiz veya suresi dolmus dogrulama linki."));
+
+    if (user.getEmailVerificationTokenExpiry().isBefore(LocalDateTime.now())) {
+      // Token'ı yine de temizleyelim ki tekrar kullanılamasın
+      user.setEmailVerificationToken(null);
+      user.setEmailVerificationTokenExpiry(null);
+      userRepository.save(user);
+      throw new RuntimeException("Dogrulama linkinin suresi dolmus.");
+    }
+
+    user.setEmailVerified(true);
+    user.setEmailVerificationToken(null);
+    user.setEmailVerificationTokenExpiry(null);
+    userRepository.save(user);
+  }
+
+  @Transactional
+  public void resendVerificationEmail(String username) {
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new RuntimeException("Kullanici bulunamadi."));
+
+    if (user.isEmailVerified()) {
+      throw new IllegalStateException("E-posta adresi zaten dogrulanmis.");
+    }
+
+    String token = UUID.randomUUID().toString();
+    user.setEmailVerificationToken(token);
+    user.setEmailVerificationTokenExpiry(LocalDateTime.now().plusDays(1));
+    userRepository.save(user);
+
+    mailService.sendVerificationEmail(user.getEmail(), token);
   }
 }

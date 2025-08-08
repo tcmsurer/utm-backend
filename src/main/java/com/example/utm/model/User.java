@@ -35,7 +35,11 @@ public class User {
 
   private String address;
 
-  // Sifre sifirlama icin yeni alanlar
+  private boolean emailVerified = false;
+  private String emailVerificationToken;
+  private LocalDateTime emailVerificationTokenExpiry;
+
+  // ŞİFRE SIFIRLAMA İÇİN YENİ ALANLAR
   private String passwordResetToken;
   private LocalDateTime passwordResetTokenExpiry;
 

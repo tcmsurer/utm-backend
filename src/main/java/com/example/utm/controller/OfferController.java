@@ -5,7 +5,7 @@ import com.example.utm.model.AdminUser;
 import com.example.utm.model.Offer;
 import com.example.utm.service.AdminUserService;
 import com.example.utm.service.OfferService;
-import lombok.RequiredArgsConstructor;
+// import lombok.RequiredArgsConstructor; // Artık gerekli değil
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,11 +16,17 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin")
-@RequiredArgsConstructor
+// @RequiredArgsConstructor // Bu anotasyonu siliyoruz
 public class OfferController {
 
   private final OfferService offerService;
   private final AdminUserService adminUserService;
+
+  // CONSTRUCTOR MANUEL OLARAK EKLENDİ
+  public OfferController(OfferService offerService, AdminUserService adminUserService) {
+    this.offerService = offerService;
+    this.adminUserService = adminUserService;
+  }
 
   @PostMapping("/requests/{requestId}/offers")
   @PreAuthorize("hasAuthority('ROLE_ADMIN')")

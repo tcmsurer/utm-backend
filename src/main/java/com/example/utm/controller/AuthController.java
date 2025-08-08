@@ -6,10 +6,7 @@ import com.example.utm.dto.RegisterRequest;
 import com.example.utm.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -30,7 +27,6 @@ public class AuthController {
     return ResponseEntity.ok(authService.login(request));
   }
 
-  // YENİ ENDPOINT: Şifremi unuttum talebi için
   @PostMapping("/forgot-password")
   public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> payload) {
     try {
@@ -47,6 +43,16 @@ public class AuthController {
       authService.resetPassword(payload.get("token"), payload.get("password"));
       return ResponseEntity.ok("Sifreniz basariyla guncellendi.");
     } catch (Exception e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  @GetMapping("/verify-email")
+  public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
+    try {
+      authService.verifyEmail(token);
+      return ResponseEntity.ok("E-posta adresiniz başarıyla doğrulandı!");
+    } catch (RuntimeException e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }

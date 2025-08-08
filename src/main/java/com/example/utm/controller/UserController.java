@@ -3,6 +3,7 @@ package com.example.utm.controller;
 import com.example.utm.dto.ChangePasswordRequest;
 import com.example.utm.dto.UserProfileDto;
 import com.example.utm.model.User;
+import com.example.utm.service.AuthService;
 import com.example.utm.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import java.security.Principal;
 public class UserController {
 
   private final UserService userService;
+  private final AuthService authService; // Yeni eklendi
 
   @GetMapping("/me")
   @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
@@ -34,13 +36,25 @@ public class UserController {
     return ResponseEntity.ok(updatedProfile);
   }
 
-  @PutMapping("/me/change-password")
+  @PostMapping("/me/change-password")
   @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')")
   public ResponseEntity<String> changePassword(Principal principal, @RequestBody ChangePasswordRequest request) {
     try {
       userService.changePassword(principal.getName(), request);
       return ResponseEntity.ok("Şifre başarıyla güncellendi.");
     } catch (IllegalStateException e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  // YENİ ENDPOINT: Doğrulama e-postasını tekrar gönderir
+  @PostMapping("/me/resend-verification-email")
+  @PreAuthorize("isAuthenticated()") // Sadece giriş yapmış kullanıcılar
+  public ResponseEntity<String> resendVerificationEmail(Principal principal) {
+    try {
+      authService.resendVerificationEmail(principal.getName());
+      return ResponseEntity.ok("Yeni dogrulama linki e-posta adresinize gonderildi.");
+    } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
