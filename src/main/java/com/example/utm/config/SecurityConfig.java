@@ -31,7 +31,12 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .cors(cors -> cors.configurationSource(request -> {
           CorsConfiguration configuration = new CorsConfiguration();
-          configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://ustatedarikmerkezi.com"));
+          configuration.setAllowedOrigins(Arrays.asList(
+              "http://localhost:3000",
+              "https://utm-frontend.vercel.app",
+              "https://ustatedarikmerkezi.com",
+              "https://www.ustatedarikmerkezi.com"
+          ));
           configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
           configuration.setAllowedHeaders(List.of("*"));
           configuration.setAllowCredentials(true);
