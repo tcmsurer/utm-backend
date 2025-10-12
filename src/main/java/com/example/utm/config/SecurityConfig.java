@@ -48,7 +48,9 @@ public class SecurityConfig {
                 "/api/auth/**",
                 "/api/ustalar",
                 "/api/sorular/usta/**",
-                "/api/hizmetler", // DİKKAT: Bu satır eklendi
+                "/api/hizmetler",
+                "/api/files/**",
+                "/api/ustalar/*/portfolio",
                 "/swagger-ui/**",
                 "/v3/api-docs/**"
             ).permitAll()
