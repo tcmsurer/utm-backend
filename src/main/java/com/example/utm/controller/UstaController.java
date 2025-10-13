@@ -71,4 +71,15 @@ public class UstaController {
     ustaService.activateUsta(id);
     return ResponseEntity.noContent().build();
   }
+
+  @PutMapping(value = "/admin/ustalar/{id}", consumes = {"multipart/form-data"})
+  @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+  public ResponseEntity<Usta> updateUsta(
+      @PathVariable UUID id,
+      @RequestPart("name") String name,
+      @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
+
+    Usta updatedUsta = ustaService.updateUsta(id, name, profileImage);
+    return ResponseEntity.ok(updatedUsta);
+  }
 }

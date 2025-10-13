@@ -2,6 +2,7 @@ package com.example.utm.service;
 
 import com.example.utm.model.Usta;
 import com.example.utm.repository.UstaRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -89,4 +90,33 @@ public class UstaService {
     usta.setActive(true);
     ustaRepository.save(usta);
   }
+
+  /**
+   * Mevcut bir ustayı günceller. Adını veya profil resmini değiştirebilir.
+   * @param id Güncellenecek ustanın ID'si.
+   * @param newName Yeni usta adı.
+   * @param profileImage Yeni profil resmi (opsiyonel).
+   * @return Güncellenmiş Usta nesnesi.
+   */
+  @Transactional
+  public Usta updateUsta(UUID id, String newName, MultipartFile profileImage) {
+    Usta usta = ustaRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Usta bulunamadı: " + id));
+
+    // Eğer yeni isim mevcut isimden farklıysa ve zaten başka bir ustaya ait değilse güncelle
+    Optional<Usta> existingUstaWithName = ustaRepository.findByName(newName);
+    if (existingUstaWithName.isPresent() && !existingUstaWithName.get().getId().equals(id)) {
+      throw new RuntimeException("Bu usta adı zaten başka bir usta tarafından kullanılıyor: " + newName);
+    }
+    usta.setName(newName);
+
+    if (profileImage != null && !profileImage.isEmpty()) {
+      // İleride eski resmi diskten silme logiği eklenebilir
+      String fileName = fileStorageService.storeFile(profileImage);
+      usta.setProfileImageUrl(fileName);
+    }
+
+    return ustaRepository.save(usta);
+  }
+
 }

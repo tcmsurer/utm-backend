@@ -1,0 +1,6 @@
+#FileLock
+#Mon Oct 13 03:08:13 TRT 2025
+server=192.168.1.10\:56443
+hostName=TC16753562.turkcell.entp.tgc
+method=file
+id=199dae56ee6f5b796d7283769bf2585b504827e4a68
